@@ -458,7 +458,7 @@ write.csv(s_info_val, "TCGE_cfDM_samples_only_fixed_validation.csv", row.names =
   
   summary(s_info_u$age)
   age_cdf <- ecdf(s_info_u$age)
-  tt <- paste0("Samples N = ", length(s_info$age), "; Age NA: ", sum(is.na(s_info_u$age)))
+  tt <- paste0("Samples N = ", length(s_info_u$age), "; Age NA: ", sum(is.na(s_info_u$age)))
   
   pdf("Validation_cf_samples_age_CDF.pdf", width = 4, height = 3)
   par(mar = c(4, 3, 1, 1), mgp = c(2, 1, 0))

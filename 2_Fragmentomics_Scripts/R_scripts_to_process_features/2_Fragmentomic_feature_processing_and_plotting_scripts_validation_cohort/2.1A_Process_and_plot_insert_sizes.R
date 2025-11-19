@@ -640,6 +640,29 @@ prop_short_df_validation <- left_join(prop, metadata_df, by = c("Sample" = "samp
 ## Add column 
 prop_short_df_validation$Twentyto150_pct <- prop_short_df_validation$prop*100
 
+## Export the source data 
+source_data_prop_short_validation <- prop_short_df_validation %>%
+  dplyr::select(
+    Sample,
+    sequencing_id,
+    project_id,
+    cancer_type_corrected_updated,
+    cancer_type_title_case,
+    Twentyto150_pct
+  ) %>%
+  dplyr::rename(
+    `20:150bp/20:600bp_fragments` = Twentyto150_pct
+  ) %>%
+  dplyr::arrange(cancer_type_title_case, Sample)
+
+
+# Export as CSV
+write.csv(
+  source_data_prop_short_validation,
+  file = "Source_Data/Extended_Data_Figure_8C_Source_Data.csv",
+  row.names = FALSE
+)
+
 ## Save
 write.table(prop_short_df_validation, "Prop 20 to 150 bp in cfMeDip validation cohort.txt", row.names = FALSE, sep = "\t")
 saveRDS(prop_short_df_validation, file = "Prop 20 to 150 bp in cfMeDip_validation.rds")

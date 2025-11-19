@@ -542,6 +542,86 @@ fig
 ggsave(file.path(outdir, paste0("fragment_end_contexts_dnase1l3, May 2024, updated to all frags 5prime only, 4.pdf")), fig, width = 15, height = 8, dpi = 500, units = "in")
 
 
+## Reformat with exact pvalues 
+
+# Format p-values to something readable
+data_stats_dnase$label_p <- ifelse(
+  data_stats_dnase$pval < 0.001,
+  paste0("p = ", format(data_stats_dnase$pval, scientific = TRUE, digits = 2)),
+  paste0("p = ", signif(data_stats_dnase$pval, digits = 2))
+)
+
+
+
+# Compute max y per facet to place labels cleanly
+max_vals <- aggregate(normalized_frequency ~ motif, data = data_dnase, max)
+
+colnames(max_vals)[2] <- "max_y"
+
+data_stats_dnase <- merge(data_stats_dnase, max_vals, by = "motif", all.x = TRUE)
+
+# move p-value slightly above the tallest box
+data_stats_dnase$max_y <- data_stats_dnase$max_y * 1.05
+
+# Only show if significant 
+alpha <- 0.05
+
+# keep only significant p-values
+data_stats_dnase_sig <- subset(data_stats_dnase, pvalue < alpha)
+
+
+# place labels just above the tallest whisker
+data_stats_dnase_sig$base_y <- data_stats_dnase_sig$max_y * 1.05
+
+# within each motif, give each label an index 1,2,3,... 
+# then push later ones slightly higher
+data_stats_dnase_sig$idx <- ave(
+  data_stats_dnase_sig$pvalue,
+  data_stats_dnase_sig$motif,
+  FUN = seq_along
+)
+
+# stagger vertically: 3% higher per index step
+data_stats_dnase_sig$y_pos <- data_stats_dnase_sig$max_y * (1 + 0.015 * (data_stats_dnase_sig$idx - 1))
+
+## alternatively try jitter 
+set.seed(2025)   # reproducible jitter
+
+data_stats_dnase_sig$y_jittered <- data_stats_dnase_sig$base_y +
+  rnorm(nrow(data_stats_dnase_sig), mean = 0, sd = data_stats_dnase_sig$max_y * 0.01)
+
+
+fig <- ggplot(data_dnase) +
+  geom_boxplot(
+    aes(cancer_type_title_case, normalized_frequency,
+        fill = cancer_type_title_case),
+    outlier.size = 1, alpha = 1
+  ) +
+  geom_text(
+    data = data_stats_dnase_sig,
+    aes(x = cancer_type_title_case, y = y_pos, label = label_p),
+    size = 2,           # small text for crowded plot
+    vjust = -0.2
+  ) +
+  xlab("Frequency (%)") + 
+  ylab("Frequency (%)") +
+  labs(color = "", fill = "") +
+  scale_fill_manual(values = cancer_type_col) +
+  facet_wrap(. ~ motif, scales = "free_y", nrow = 1) +
+  labs(title = "DNASE1L3 motifs") +
+  theme +
+  theme(axis.text.x  = element_blank(),
+        axis.ticks.x = element_blank()) +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.18))) +
+  scale_x_discrete(expand = expansion(mult = c(0.2, 0.2)))
+
+ggsave(file.path(outdir, paste0("fragment_end_contexts_dnase1l3, Nov 2025, updated to all frags 5prime only, not jitter small.pdf")), fig, width = 15, height = 8, dpi = 500, units = "in")
+
+fig <- fig +
+  facet_wrap(. ~ motif, scales = "fixed", nrow = 1)
+
+ggsave(file.path(outdir, paste0("fragment_end_contexts_dnase1l3, Nov 2025, updated to all frags 5prime only, not jitter small fixed.pdf")), fig, width = 15, height = 8, dpi = 500, units = "in")
+
 
 
 
@@ -600,6 +680,13 @@ fig_fold_cancer <- ggplot(fold_change_all, aes(x = cancer_type_title_case, y = f
 fig_fold_cancer
 ggsave(file.path(outdir, paste("fragment_fold_change_all_cancers, May 2024, updated by Variance, all frags, 3.pdf", sep = "")), fig_fold_cancer, width = 10, height = 4, dpi = 500, units = "in")
 
+## Export this as Source data 
+# Export as CSV
+write.csv(
+  fold_change_all,
+  file = "Source_Data/Figure_3C_Source_Data.csv",
+  row.names = FALSE
+)
 
 ## Now reorder
 # Get the ordered cancer types to match the insert size
@@ -856,6 +943,12 @@ saveRDS(final_shannon, file = file.path(outdir, "shannon_index_statistics_by_can
 saveRDS(final_shannon2, file = file.path(outdir, "detailed_shannon_statistics_AT_content_by_cancer_type.rds"))
 
 
+# Export as CSV
+write.csv(
+  data_stats_dnase,
+  file = "Source_Data/Extended_Data_Figure_6C_Source_Data.csv",
+  row.names = FALSE
+)
 
 
 

@@ -347,6 +347,50 @@ mycorrelations <- function(data,mapping,...){
           panel.grid.minor = element_blank())
   }
 
+## Update to have the actual pvalue rather than star 
+mycorrelations <- function(data, mapping, ...) {
+  data2 = data
+  data2$x     = as.numeric(data[, as_label(mapping$x)])
+  data2$y     = as.numeric(data[, as_label(mapping$y)])
+  data2$group = data[, as_label(mapping$colour)]
+  
+  correlation_df <- data2 %>% 
+    bind_rows(data2 %>% mutate(group = "Overall Corr")) %>%
+    group_by(group) %>% 
+    filter(sum(!is.na(x)) > 1,
+           sum(!is.na(y)) > 1) %>%
+    summarize(
+      estimate = round(as.numeric(cor.test(x, y, method = "spearman")$estimate), 2),
+      pvalue   = cor.test(x, y, method = "spearman")$p.value,
+      .groups  = "drop"
+    ) %>%
+    mutate(
+      group = factor(
+        group,
+        levels = c(as.character(unique(sort(data[, as_label(mapping$colour)]))),
+                   "Overall Corr")
+      ),
+      # HERE: build a label with numeric p-value
+      label = paste0(
+        group, ": ", estimate,
+        " (p=", signif(pvalue, 2), ")"
+      )
+    )
+  
+  ggplot(data = correlation_df, aes(x = 1, y = group, color = group)) +
+    geom_text(aes(label = label), size = 2.5) + # smaller text
+    theme_minimal() +
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.title.x     = element_blank(),
+      axis.text.x      = element_blank(),
+      axis.ticks.x     = element_blank()
+    )
+}
+
+
+
 ## Works!! For diagonal color
 mydiagonals <- function(data, mapping, ...){
   # Extract the variable name for x and the group (coloring) variable
@@ -447,13 +491,13 @@ Z_score_table_export <- Z_score_table_export %>%
 write.table(Z_score_table_export, sep = "\t", quote = F, row.names = F, file = "Genome-wide Z-score table per feature.txt")
 
 ## Rerun 
-corr_plot_colored_manual4 <- ggpairs(subset_df_renamed,columns=1:6,
+corr_plot_colored_manual4_updated <- ggpairs(subset_df_renamed,columns=1:6,
                                      upper = list(continuous = mycorrelations), 
                                      diag = list(continuous = mydiagonals),
                                      mapping = ggplot2::aes(color=cancer_type_title_case)) +
   scale_colour_manual(values = cancer_type_col) 
 
-ggsave(filename = "Correlation_matrix_all_features_colored_manual 5, naming corrected, Mar 2025.pdf", plot = corr_plot_colored_manual4, width = 14, height = 12, units = "in", dpi = 500)
+ggsave(filename = "Correlation_matrix_all_features_colored_manual 5, naming corrected, Mar 2025, updated.pdf", plot = corr_plot_colored_manual4_updated, width = 14, height = 12, units = "in", dpi = 500)
 
 
 

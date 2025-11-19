@@ -592,6 +592,13 @@ fig_fold_cancer <- ggplot(fold_change_all, aes(x = cancer_type_title_case, y = f
 fig_fold_cancer
 ggsave(file.path(outdir, paste("fragment_fold_change_all_cancers, March 2025, updated by Variance, all frags.pdf", sep = "")), fig_fold_cancer, width = 10, height = 4, dpi = 500, units = "in")
 
+## Export this as Source data 
+# Export as CSV
+write.csv(
+  fold_change_all,
+  file = "Source_Data/Extended_Data_Figure_8F_Source_Data.csv",
+  row.names = FALSE
+)
 
 ## Now reorder
 # Get the ordered cancer types to match the insert size

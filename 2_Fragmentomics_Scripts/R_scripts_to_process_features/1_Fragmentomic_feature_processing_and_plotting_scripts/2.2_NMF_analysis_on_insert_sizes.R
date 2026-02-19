@@ -374,3 +374,94 @@ grid.arrange(new_figure_plots)
 dev.off()
 
 ggsave(file.path(directory, paste("NMF fragmentation scores, Dec 2024 all frags.pdf", sep = "")), new_figure_plots, width = 11.5, height = 13, dpi = 1000, units = "in")
+
+
+
+
+### Get source data for figure panes 
+## Make a Source_Data directory in the current working dir
+if (!dir.exists("Source_Data")) dir.create("Source_Data")
+
+## 1) Top-left: NMF_plot  (NMF signatures vs fragment length)
+##    Use H_scale directly, plus an explicit fragment_length column
+fragment_length_bp <- as.numeric(rownames(H_scale))
+
+source_ED_fig5b_i_NMF_signatures <- data.frame(
+  fragment_length_bp = fragment_length_bp,
+  `Signature_1_normal` = H_scale[, "Signature 1 (normal)"],
+  `Signature_2_cancer` = H_scale[, "Signature 2 (cancer)"]
+)
+
+## 2) Top-right: Training_W_Cancer_plot
+##    Sample-level signature 1 (cancer) weights
+source_ED_fig5b_ii_W_cancer <- all_training_FS %>%
+  dplyr::select(
+    Sample,
+    sequencing_id,
+    project_id,
+    cancer_type,
+    cancer_type_title_case,
+    W_cancer_sig
+  ) %>%
+  dplyr::rename(
+    Signature1_cancer_weight = W_cancer_sig
+  ) %>%
+  dplyr::arrange(cancer_type, Sample)
+
+## 3) Middle-left: Compare_NMF_plot
+##    NMF log2 signature ratio and Vessies reference curve
+source_ED_fig5b_iii_NMF_vs_Vessies <- data.frame(
+  fragment_length_bp = fragment_length_bp,
+  log2_signature2_over1 = as.numeric(H_diff),
+  vessies_fragmentation_score = as.numeric(Vessies_Ref_50_275$X1)
+)
+
+## 4) Middle-right: Training_FS_plot
+##    Training set patient-level fragmentation scores
+source_ED_fig5b_iv_Training_FS <- all_training_FS %>%
+  dplyr::select(
+    Sample,
+    sequencing_id,
+    project_id,
+    cancer_type,
+    cancer_type_title_case,
+    FS
+  ) %>%
+  dplyr::rename(
+    Fragmentation_Score = FS
+  ) %>%
+  dplyr::arrange(cancer_type, Sample)
+
+## 5) Bottom big panel: all_FS_plot
+##    All samples (training + test + LFS) fragmentation scores
+source_ED_fig5c_All_FS <- all_FS %>%
+  dplyr::select(
+    Sample,
+    sequencing_id,
+    project_id,
+    cancer_type,
+    FS
+  ) %>%
+  dplyr::rename(
+    Fragmentation_Score = FS
+  ) %>%
+  dplyr::arrange(cancer_type, Sample)
+
+## Write one Excel workbook with a sheet per pane
+writexl::write_xlsx(
+  list(
+    EDFig5b_TopLeft_NMF_signatures        = source_ED_fig5b_i_NMF_signatures,
+    EDFig5b_TopRight_W_cancer_weights      = source_ED_fig5b_ii_W_cancer,
+    EDFig5b_BottomLeft_NMF_vs_Vessies        = source_ED_fig5b_iii_NMF_vs_Vessies,
+    EDFig5b_BottomRight_Training_FS           = source_ED_fig5b_iv_Training_FS
+  ),
+  path = file.path("Source_Data", "Extended_Data_Figure_5B_Source_Data.xlsx")
+)
+
+## Lastly 5C
+# Export as CSV
+write.csv(
+  source_ED_fig5c_All_FS,
+  file = "Source_Data/Extended_Data_Figure_5C_Source_Data.csv",
+  row.names = FALSE
+)

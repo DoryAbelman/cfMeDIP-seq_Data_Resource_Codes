@@ -138,4 +138,31 @@ Corr_DNASE
 ggsave("FS_vs_DNASE1L3_Correlation_colored_per_sample_mean.png", plot = Corr_DNASE, width = 6, height = 3.5, dpi = 500)
 
 
+## Now get source data 
+source_combined <- combined_df %>%
+  select(
+    # Sample identifiers
+    Sample,
+    sample_id,
+    sequencing_id,
+    project_id,
+    
+    # Biological annotation
+    cancer_type_title_case,
+    
+    # Key numeric variables used in all FS/end-motif/DNASE analyses
+    FS,
+    fragment_size_median,
+    DNASE1L3_mean_score,
+    DNASE1L3_median_score,
+    DNASE1L3_sd_score
+  ) %>%
+  rename(
+    Fragment_Score = FS
+  ) %>%
+  arrange(cancer_type_title_case, Sample)
 
+## Export
+write.csv(source_combined,
+          "Source_Data/Extended_Data_Figure_6E_Source_Data.csv",
+          row.names = FALSE)

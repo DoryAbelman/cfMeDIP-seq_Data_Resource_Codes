@@ -163,6 +163,15 @@ fold_summary <- sum_data %>%
 print("Fold Summary:")
 print(fold_summary)
 
+# 1. Count the number of iterations per cancer
+fold_summary %>%
+  group_by(cancer) %>%
+  summarise(n_iterations = n())
+
+# 2. Get the maximum iteration number per cancer
+fold_summary %>%
+  group_by(cancer) %>%
+  summarise(max_iteration = max(iteration, na.rm = TRUE))
 
 # Identify the best model for each cancer type based on average test AUC
 best_model_by_cancer <- sum_data %>%

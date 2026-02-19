@@ -628,6 +628,32 @@ prop_short_df %>%
         panel.background = element_blank(), axis.line = element_line(colour = "black")) 
 dev.off()
 
+## Export the source data 
+source_data_prop_short <- prop_short_df %>%
+  dplyr::select(
+    Sample,
+    sequencing_id,
+    project_id,
+    cancer_type_corrected_updated,
+    cancer_type_title_case,
+    Twentyto150_pct
+  ) %>%
+  dplyr::rename(
+    `20:150bp/20:600bp_fragments` = Twentyto150_pct
+  ) %>%
+  dplyr::arrange(cancer_type_title_case, Sample)
+
+# Create directory if it does not exist
+if (!dir.exists("Source_Data")) {
+  dir.create("Source_Data")
+}
+
+# Export as CSV
+write.csv(
+  source_data_prop_short,
+  file = "Source_Data/Figure_3A_Source_Data.csv",
+  row.names = FALSE
+)
 
 ## Make text bigger 
 

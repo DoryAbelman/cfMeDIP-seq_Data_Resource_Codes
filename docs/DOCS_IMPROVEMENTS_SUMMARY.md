@@ -65,8 +65,6 @@ Updated script groups include:
 6. Explicit configuration template for path overrides.
 7. Python dependency file (`requirements.txt`) and path/model override support for ML scripts.
 
-## Ambiguous Areas Flagged
+## Ambiguous Areas
 1. Many scripts still contain original hardcoded cluster paths and depend on local infrastructure/data not distributed in this repository. Documentation now flags this, but per-site path adaptation remains required.
-2. Full manuscript data inputs are not included, so true end-to-end reproduction cannot be executed directly from a clean clone without external data provisioning.
-3. Run order inside some large R scripts is inferred from numbering and file naming; those scripts also contain multi-purpose sections and historical blocks that may not always be run in full.
-4. Secondary helper scripts are primarily sourced by runner scripts; standalone execution behavior may vary.
+2. Full manuscript data inputs are not included, so true end-to-end reproduction cannot be executed directly from a clean clone without external data provisioning from the manuscript directory.

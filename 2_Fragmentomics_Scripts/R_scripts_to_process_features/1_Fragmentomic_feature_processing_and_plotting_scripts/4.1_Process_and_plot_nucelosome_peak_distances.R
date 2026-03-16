@@ -45,7 +45,7 @@ library(factoextra)
 
 ### Set paths
 path <- "Nucleosome Peak/distance/"
-outdir <- "Final Data Dec 2024/Nucelosome_peak/"
+outdir <- "Final Data Dec 2024/Nucleosome_peak/"
 healthy_path <- "Nucleosome Peak/healthy_distance/"
 
 ### Find paths
@@ -744,11 +744,11 @@ Nucleosome_peak_zscores <- rownames_to_column(Nucleosome_peak_zscores, "Sample")
 Nucleosome_peak_zscores <- left_join(Nucleosome_peak_zscores, metadata_df, by = c("Sample" = "nucleosome_peak_sampleid"))
 
 ### Save objects
-saveRDS(Normal_ratio, file=file.path(outdir, paste0("Normal_ratio_Nucelosome_peak.rds")))
-saveRDS(Cancer_ratio, file=file.path(outdir, paste0("Cancer_ratio_Nucelosome_peak.rds")))
-saveRDS(Normal_median, file=file.path(outdir, paste0("Normal_median_Nucelosome_peak.rds")))
-saveRDS(zscores_mat_nucleosome_peak, file = file.path(outdir, paste0("Zscore_mat_Nucelosome_peak.rds")))
-saveRDS(Nucleosome_peak_zscores, file = "Zscores df for Nucelosome peak.rds")
+saveRDS(Normal_ratio, file=file.path(outdir, paste0("Normal_ratio_Nucleosome_peak.rds")))
+saveRDS(Cancer_ratio, file=file.path(outdir, paste0("Cancer_ratio_Nucleosome_peak.rds")))
+saveRDS(Normal_median, file=file.path(outdir, paste0("Normal_median_Nucleosome_peak.rds")))
+saveRDS(zscores_mat_nucleosome_peak, file = file.path(outdir, paste0("Zscore_mat_Nucleosome_peak.rds")))
+saveRDS(Nucleosome_peak_zscores, file = "Zscores df for Nucleosome peak.rds")
 
 
 
